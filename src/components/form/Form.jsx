@@ -4,10 +4,11 @@ import Swal from "sweetalert2";
 
 function Form() {
 
-    // Estados para salvar o item adicionado no formulário, o valor que usuário digitar no input e o item que o mesmo selecionar no formulário
-    const [items, setItems] = useState(['Geopixel']);
+    // Estados para salvar o item adicionado no formulário, o valor que usuário digitar no input, o item que o mesmo selecionar no formulário e desabilitar/habilitar selected
+    const [items, setItems] = useState([]);
     const [inputValue, setInputValue] = useState('');
-    const [selectedItem, setSelectedItem] = useState();
+    const [selectedItem, setSelectedItem] = useState('setSelectedItem');
+    const [itemIsDisable, setItemIsDisable] = useState(false);
 
     // Captura o valor do input e salva no seu estado
     const handleInput = (event) => {
@@ -27,8 +28,8 @@ function Form() {
 
     return (
         <form className="form" onSubmit={handleSubmit}>
-            <select className="select" onChange={handleChange}>
-                <option value="" hidden>
+            <select className="select" onChange={handleChange} value={selectedItem}>
+                <option value="" disabled={itemIsDisable}>
                     Selecione uma opção
                 </option>
                 {
@@ -47,24 +48,18 @@ function Form() {
             <div className="containerBotoes">
 
                 <button
-                    className="botoes"
                     onClick={() => {
                         if (inputValue !== '') {
                             if (!items.includes(inputValue)) {
                                 setItems(oldList => [...oldList, inputValue]);
-                                Swal.fire({
-                                    title: 'Item adicionado ao formulário com sucesso!'
-                                });
+                                setItemIsDisable(true);
+                                setSelectedItem(inputValue);
+                                Swal.fire('Item adicionado ao formulário com sucesso!', '', 'success');
                             } else {
-                                Swal.fire({
-                                    title: 'Item já existe no formulário!'
-                                });
+                                Swal.fire('Item já existe no formulário!', '', 'warning');
                             }
                         } else {
-                            Swal.fire({
-                                title: 'Valor do campo está vazio!',
-                                text: 'Por favor, digite algo para um item para ser adicionado!',
-                            });
+                            Swal.fire('Valor do campo está vazio!', 'Por favor, digite algo para um item para ser adicionado!', 'error');
                         }
                     }
                     }>
@@ -72,18 +67,20 @@ function Form() {
                 </button>
 
                 <button
-                    className="botoes"
                     onClick={() => {
-                        if (items.includes(inputValue)) {
-                            const newList = items.filter((value) => value !== inputValue);
-                            setItems(newList);
-                            Swal.fire({
-                                title: `Item ${inputValue} removido com sucesso!`
-                            });
+                        if (inputValue !== '') {
+                            if (items.includes(inputValue)) {
+                                const newList = items.filter((value) => value !== inputValue);
+                                setItems(newList);
+                                if (inputValue === selectedItem) {
+                                    setSelectedItem(newList[0]);
+                                }
+                                Swal.fire(`Item ${inputValue} removido com sucesso!`, '', 'success');
+                            } else {
+                                Swal.fire('Este item não existe no formulário!', '', 'warning');
+                            }
                         } else {
-                            Swal.fire({
-                                title: 'Este item não existe no formulário!'
-                            });
+                            Swal.fire('Valor do campo está vazio!', 'Por favor, digite algo para um item para ser adicionado!', 'error');
                         }
                     }}
                 >
@@ -91,12 +88,11 @@ function Form() {
                 </button>
 
                 <button
-                    className="botoes"
                     onClick={() => {
                         setItems('');
-                        Swal.fire({
-                            title: `Todos os itens removidos com sucesso!`
-                        });
+                        setSelectedItem('setSelectedItem');
+                        setItemIsDisable(false);
+                        Swal.fire(`Todos os itens removidos com sucesso!`, '', 'success');
                     }}
                 >
                     Limpar caixa
